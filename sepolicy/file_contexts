@@ -1,0 +1,27 @@
+/dev/mali	        	u:object_r:gpu_device:s0
+/dev/sw_sync	        u:object_r:gpu_device:s0
+/dev/dri/card0	        u:object_r:gpu_device:s0
+/dev/scaler	        	u:object_r:gpu_device:s0
+/dev/nx-deinterlacer    u:object_r:gpu_device:s0
+/dev/ttySAC[0,2-9]*     u:object_r:console_device:s0
+/dev/ttySAC1            u:object_r:hci_attach_dev:s0
+/dev/ttyAMA[0,2-9]*     u:object_r:console_device:s0
+/dev/ttyAMA1            u:object_r:hci_attach_dev:s0
+/dev/block/mmcblk0p2			u:object_r:system_block_device:s0
+/dev/block/mmcblk0p5	u:object_r:cache_block_device:s0
+/dev/block/mmcblk0p8	u:object_r:userdata_block_device:s0
+/dev/input/*					u:object_r:input_device:s0
+/dev/media[0-9]*				u:object_r:video_device:s0
+/dev/v4l-subdev[0-9]*				u:object_r:video_device:s0
+/system/bin/nx_3d_avm/nx_3d_avm	u:object_r:nx_3d_avm_exec:s0
+
+/sbin/nx_init  u:object_r:nx_init_exec:s0
+/sbin/nx_3d_avm_quick u:object_r:nx_3d_avm_exec:s0
+/sbin/3DS/* u:object_r:rootfs:s0
+/sbin/avm/* u:object_r:rootfs:s0
+/sbin/ui/*  u:object_r:rootfs:s0
+/sbin/NxQuickRearCam u:object_r:NxQuickRearCam_exec:s0
+/dev_q                    u:object_r:rootfs:s0
+
+# sysfs
+/sys/devices/platform/bt_control/rfkill/rfkill0/state   u:object_r:sysfs_bluetooth_writable:s0

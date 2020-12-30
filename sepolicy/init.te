@@ -1,0 +1,16 @@
+allow init tmpfs:lnk_file create;
+allow init kernel:system module_request;
+allow init configfs:file write;
+allow init configfs:lnk_file { create unlink };
+allow init sysfs:dir write;
+allow init self:capability sys_nice;
+allow init audio_device:chr_file write;
+
+# 3d_avm
+# allow init rootfs:file create_file_perms;
+# allow init nx_3d_avm:file { open read setattr search };
+allow init nx_3d_avm:file create_file_perms;
+allow init nx_3d_avm_quick:file create_file_perms;
+#allow init system_block_device:blk_file { open read setattr search };
+#allow init system_block_device:blk_file { write };
+#allow init mmcblk_block_device:blk_file { open read write };

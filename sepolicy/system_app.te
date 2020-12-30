@@ -1,0 +1,6 @@
+set_prop(system_app, input_prop)
+allow system_app system_file:system module_load;
+allow system_app radio_data_file:dir getattr;
+allow system_app sysfs:file { open read };
+allow system_app sysfs:dir { open read };
+allow system_app sysfs_system_app_writable:file rw_file_perms;

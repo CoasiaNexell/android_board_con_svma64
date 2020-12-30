@@ -1,0 +1,39 @@
+# nx_3d_avm_quick oneshot service
+type nx_3d_avm_quick, domain, domain_deprecated;
+type nx_3d_avm_quick_exec, exec_type, file_type;
+
+init_daemon_domain(nx_3d_avm_quick)
+
+binder_use(nx_3d_avm_quick)
+binder_call(nx_3d_avm_quick, surfaceflinger)
+binder_call(nx_3d_avm_quick, audioserver)
+
+security_access_policy(nx_3d_avm_quick)
+
+# Read access to pseudo filesystems.
+r_dir_file(nx_3d_avm_quick, proc)
+r_dir_file(nx_3d_avm_quick, sysfs)
+r_dir_file(nx_3d_avm_quick, cgroup)
+allow nx_3d_avm_quick proc_meminfo:file r_file_perms;
+
+# /oem access
+allow nx_3d_avm_quick oemfs:dir search;
+allow nx_3d_avm_quick oemfs:file r_file_perms;
+
+allow nx_3d_avm_quick audio_device:dir r_dir_perms;
+allow nx_3d_avm_quick audio_device:chr_file rw_file_perms;
+allow nx_3d_avm_quick audioserver_service:service_manager find;
+
+allow nx_3d_avm_quick surfaceflinger_service:service_manager find;
+allow nx_3d_avm_quick ion_device:chr_file rw_file_perms;
+allow nx_3d_avm_quick gpu_device:chr_file rw_file_perms;
+
+# System file accesses.
+allow nx_3d_avm_quick system_file:dir r_dir_perms;
+allow nx_3d_avm_quick self:capability sys_admin;
+allow nx_3d_avm_quick input_device:dir { open read search };
+allow nx_3d_avm_quick input_device:chr_file { open read ioctl};
+allow nx_3d_avm_quick video_device:chr_file { open read write ioctl};
+allow nx_3d_avm_quick console_device:chr_file { open read write ioctl};
+
+

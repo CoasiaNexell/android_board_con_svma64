@@ -1,0 +1,39 @@
+# nx_init oneshot service
+type nx_init, domain, domain_deprecated;
+type nx_init_exec, exec_type, file_type;
+
+init_daemon_domain(nx_init)
+
+binder_use(nx_init)
+binder_call(nx_init, surfaceflinger)
+binder_call(nx_init, audioserver)
+
+security_access_policy(nx_init)
+
+# Read access to pseudo filesystems.
+r_dir_file(nx_init, proc)
+r_dir_file(nx_init, sysfs)
+r_dir_file(nx_init, cgroup)
+allow nx_init proc_meminfo:file r_file_perms;
+
+# /oem access
+allow nx_init oemfs:dir search;
+allow nx_init oemfs:file r_file_perms;
+
+allow nx_init audio_device:dir r_dir_perms;
+allow nx_init audio_device:chr_file rw_file_perms;
+allow nx_init audioserver_service:service_manager find;
+
+allow nx_init surfaceflinger_service:service_manager find;
+allow nx_init ion_device:chr_file rw_file_perms;
+allow nx_init gpu_device:chr_file rw_file_perms;
+
+# System file accesses.
+allow nx_init system_file:dir r_dir_perms;
+allow nx_init self:capability sys_admin;
+allow nx_init input_device:dir { open read search };
+allow nx_init input_device:chr_file { open read ioctl };
+allow nx_init video_device:chr_file { open read write ioctl };
+allow nx_init console_device:chr_file { open read write ioctl getattr };
+
+
