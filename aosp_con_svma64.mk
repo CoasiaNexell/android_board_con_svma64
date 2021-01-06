@@ -49,7 +49,8 @@ $(call inherit-product, device/nexell/con_svma64/device.mk)
 
 ifeq ($(QUICKBOOT), 1)
 PRODUCT_PACKAGES += \
-    Home
+    Home \
+    Settings
 else
 PRODUCT_PACKAGES += \
 	Launcher3
