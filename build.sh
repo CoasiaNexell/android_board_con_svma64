@@ -22,8 +22,10 @@ OUT_DIR=${TOP}/out/target/product/${BOARD_NAME}
 
 if [ "${QUICKBOOT}" == "true" ] ; then
 	PARTMAP_FILE=${TOP}/device/nexell/con_svma64/partmap_quick.txt
+	KERNEL_DEFCONFIG=s5p6818_con_svma_nougat_quickboot_defconfig
 else
     PARTMAP_FILE=${TOP}/device/nexell/con_svma64/partmap.txt
+	KERNEL_DEFCONFIG=s5p6818_con_svma_nougat_defconfig
 fi
 
 DEVID_USB=0
@@ -118,7 +120,7 @@ if [ "${BUILD_ALL}" == "true" ] || [ "${BUILD_SECURE}" == "true" ]; then
     cat ${OPTEE_DIR}/optee_build/result/fip-nonsecure.img >> ${OPTEE_DIR}/optee_build/result/fip-loader-usb.img
 fi
 if [ "${BUILD_ALL}" == "true" ] || [ "${BUILD_KERNEL}" == "true" ]; then
-    build_kernel ${KERNEL_DIR} ${TARGET_SOC} ${BOARD_NAME} s5p6818_con_svma_nougat_defconfig ${CROSS_COMPILE}
+    build_kernel ${KERNEL_DIR} ${TARGET_SOC} ${BOARD_NAME} ${KERNEL_DEFCONFIG} ${CROSS_COMPILE}
     test -d ${OUT_DIR} && \
         cp ${KERNEL_IMG} ${OUT_DIR}/kernel && \
         cp ${DTB_IMG} ${OUT_DIR}/2ndbootloader
@@ -164,7 +166,7 @@ if [ -f ${UBOOT_DIR}/u-boot.bin ]; then
 
     UBOOT_RECOVERYCMD="ext4load mmc 0:7 0x49000000 recovery.dtb; ext4load mmc 0:7 0x40080000 recovery.kernel; ext4load mmc 0:7 0x48000000 ramdisk-recovery.img; booti 40080000 0x48000000:2d0f8f 0x49000000"
 	if [  "${QUICKBOOT}" == "true" ]; then
-    	UBOOT_BOOTARGS='console=ttySAC0,115200n8 loglevel=7 printk.time=1 '
+    	UBOOT_BOOTARGS='console=ttySAC0,115200n8 loglevel=4 quiet printk.time=1 '
     	UBOOT_BOOTARGS+='root=\/dev\/mmcblk0p2 rw rootfstype=ext4 rootwait '
     	UBOOT_BOOTARGS+='init=\/sbin\/nx_init '
 		UBOOT_BOOTARGS+='androidboot.hardware=con_svma64 '
@@ -190,6 +192,9 @@ if [ -f ${UBOOT_DIR}/u-boot.bin ]; then
 
     AUTORECOVERY_CMD="nxrecovery mmc 1 mmc 0"
 
+	NXQUICKREAR_ARGS_0='nx_cam.m=-m2 nx_cam.b=-b1 nx_cam.c=-c26 nx_cam.r=-r704x480 nx_cam.end'
+	NXQUICKREAR_ARGS_1='nx_cam.m=-m9 nx_cam.b=-b1 nx_cam.c=-c26 nx_cam.r=-r1280x720 nx_cam.end'
+
     echo "UBOOT_BOOTCMD ==> ${UBOOT_BOOTCMD}"
     echo "UBOOT_BOOTARGS ==> ${UBOOT_BOOTARGS}"
     echo "UBOOT_RECOVERYCMD ==> ${UBOOT_RECOVERYCMD}"
@@ -197,9 +202,9 @@ if [ -f ${UBOOT_DIR}/u-boot.bin ]; then
 
     pushd `pwd`
     cd ${UBOOT_DIR}
-	build_uboot_env_param ${CROSS_COMPILE} "${UBOOT_BOOTCMD}" "${UBOOT_BOOTARGS}" "${RECOVERY_BOOTARGS}" "${SPLASH_SOURCE}" "${SPLASH_OFFSET}" "${UBOOT_RECOVERYCMD}"
+	build_uboot_env_param ${CROSS_COMPILE} "${UBOOT_BOOTCMD}" "${UBOOT_BOOTARGS}" "${RECOVERY_BOOTARGS}" "${SPLASH_SOURCE}" "${SPLASH_OFFSET}" "${UBOOT_RECOVERYCMD}" "${AUTORECOVERY_CMD}" "${NXQUICKREAR_ARGS_0}" "${NXQUICKREAR_ARGS_1}"
     # for sd card auto recovery
-    build_uboot_env_param ${CROSS_COMPILE} "${UBOOT_BOOTCMD}" "${UBOOT_BOOTARGS}" "${RECOVERY_BOOTARGS}" "${SPLASH_SOURCE}" "${SPLASH_OFFSET}" "${UBOOT_RECOVERYCMD}" "${AUTORECOVERY_CMD}" "params_sd.bin"
+    build_uboot_env_param ${CROSS_COMPILE} "${UBOOT_BOOTCMD}" "${UBOOT_BOOTARGS}" "${RECOVERY_BOOTARGS}" "${SPLASH_SOURCE}" "${SPLASH_OFFSET}" "${UBOOT_RECOVERYCMD}" "${AUTORECOVERY_CMD}" "${NXQUICKREAR_ARGS_0}" "${NXQUICKREAR_ARGS_1}" "params_sd.bin"
     popd
 fi
 

@@ -46,6 +46,7 @@ on early-boot
     setrlimit 8 67108864 67108864
 
 on boot
+    chmod 0444 /proc/cmdline
     # Adjust socket buffer to enlarge TCP receive window for high bandwidth
     write /proc/sys/net/ipv4/tcp_adv_win_scale 1
 

@@ -181,7 +181,9 @@ function build_uboot_env_param()
 	local splashoffset=${6:-"nosplash"}
 	local recoveryboot=${7:-"norecovery"}
 	local autorecovery_cmd=${8:-"none"}
-	local filename=${9:-"params.bin"}
+	local nx_quickrear_arg_0=${9}
+	local nx_quickrear_arg_1=${10}
+	local filename=${11:-"params.bin"}
 
 	cp `find . -name "env_common.o"` copy_env_common.o
 	${compiler_prefix}objcopy -O binary --only-section=.rodata.default_environment `find . -name "copy_env_common.o"`
@@ -200,6 +202,12 @@ function build_uboot_env_param()
 	fi
 	if [ "${autorecovery_cmd}" != "none" ]; then
         sed -i -e 's/autorecovery_cmd=.*/autorecovery_cmd='"${autorecovery_cmd}"'/g' default_envs.txt
+    fi
+	if [ "${nx_quickrear_arg_0}" != "none" ]; then
+        echo "nxquickrear_args_0=${nx_quickrear_arg_0}" >>  default_envs.txt
+    fi
+	if [ "${nx_quickrear_arg_1}" != "none" ]; then
+        echo "nxquickrear_args_1=${nx_quickrear_arg_1}" >>  default_envs.txt
     fi
 	tools/mkenvimage -s 16384  -o ${filename} default_envs.txt
 	rm copy_env_common.o default_envs*.txt
