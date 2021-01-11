@@ -21,6 +21,7 @@
 /dev/ttyAMA*	0666	system	system
 /dev/scaler		0666	system	system
 /dev/tun		0666	system	system
+/dev/kmsg		0666	system	system
 /dev/snd/*		0666	system	system
 /dev/input/*	0666	system	system
 /dev/dri/card0	0666	system	system

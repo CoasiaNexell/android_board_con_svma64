@@ -190,7 +190,7 @@ function build_uboot_env_param()
 	tr '\0' '\n' < copy_env_common.o > default_envs.txt
 	sed -i -e 's/bootcmd=.*/bootcmd='"${bootcmd}"'/g' default_envs.txt
 	sed -i -e 's/bootargs=.*/bootargs='"${bootargs}"'/g' default_envs.txt
-	sed -i -e 's/recovery_bootargs=.*/recovery_bootargs='"${recovery_bootargs}"'/g' default_envs.txt
+	echo "recovery_bootargs=${recovery_bootargs}" >> default_envs.txt
 	if [ "${splashsource}" != "nosplash" ]; then
 		sed -i -e 's/splashsource=.*/splashsource='"${splashsource}"'/g' default_envs.txt
 	fi
@@ -1060,6 +1060,32 @@ function make_uboot_bootcmd_dtimg()
 
     echo -n ${bootcmd}
 }
+
+function make_uboot_bootcmd_recovery()
+{
+    local partmap=$1
+    local recovery_partname=$2
+    local kernel_load_addr=$3
+	local ramdisk_load_addr=$4
+    local dtb_partname=$5
+    local dtb_load_addr=$6
+
+    local recovery_start_offset=$(get_partition_offset ${partmap} ${recovery_partname})
+    local recovery_start_block_num_hex=$(get_blocknum_hex ${recovery_start_offset} 512)
+
+    local dtb_start_address=$(get_partition_offset ${partmap} ${dtb_partname})
+    local dtb_start_address_hex=$(get_blocknum_hex ${dtb_start_address} 512)
+
+    local bootcmd="setenv bootargs \$\{recovery_bootargs\}; "
+	bootcmd+="aboot load_mmc ${recovery_start_block_num_hex} ${kernel_load_addr} ${ramdisk_load_addr}; "
+	bootcmd+="dtimg load_mmc ${dtb_start_address_hex} ${dtb_load_addr} \$\{board_rev\}; "
+	bootcmd+="if test !-z $\{change_devicetree\};"
+	bootcmd+="then run change_devicetree; fi; "
+	bootcmd+="booti ${kernel_load_addr} ${ramdisk_load_addr}:\$\{ramdisk_size\} ${dtb_load_addr} "
+
+    echo -n ${bootcmd}
+}
+
 ##
 # args
 # $1: total size(must dividable by 512)

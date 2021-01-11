@@ -164,7 +164,14 @@ if [ -f ${UBOOT_DIR}/u-boot.bin ]; then
     	    "boot:emmc")
 	fi
 
-    UBOOT_RECOVERYCMD="ext4load mmc 0:7 0x49000000 recovery.dtb; ext4load mmc 0:7 0x40080000 recovery.kernel; ext4load mmc 0:7 0x48000000 ramdisk-recovery.img; booti 40080000 0x48000000:2d0f8f 0x49000000"
+	UBOOT_RECOVERYCMD=$(make_uboot_bootcmd_recovery \
+		${PARTMAP_FILE} \
+		"recovery:emmc" \
+		0x4007f800 \
+		0x48000000 \
+		"dtb:emmc" \
+		0x49000000 )
+
 	if [  "${QUICKBOOT}" == "true" ]; then
     	UBOOT_BOOTARGS='console=ttySAC0,115200n8 loglevel=4 quiet printk.time=1 '
     	UBOOT_BOOTARGS+='root=\/dev\/mmcblk0p2 rw rootfstype=ext4 rootwait '
@@ -295,13 +302,8 @@ post_process ${TARGET_SOC} \
     ${OUT_DIR} \
     con_svma
 
-make_ext4_recovery_image \
-    ${KERNEL_IMG} \
-    ${DTB_IMG} \
-    ${OUT_DIR}/ramdisk-recovery.img \
-    67108864 \
-    ${RESULT_DIR}
 
+cp -f ${OUT_DIR}/recovery.img ${RESULT_DIR}
 
 cp -f ${OUT_DIR}/dtb.img ${RESULT_DIR}
 if [ -f "${KERNEL_IMG}" ];then

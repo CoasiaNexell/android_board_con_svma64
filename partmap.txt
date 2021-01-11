@@ -7,6 +7,6 @@ flash=mmc,0:dtb:emmc:0x4700000,0x300000:dtb.img;
 flash=mmc,0:system:ext4:0x4B00000,0x80000000:system.img;
 flash=mmc,0:vendor:ext4:0x84C00000,0x4000000:vendor.img;
 flash=mmc,0:cache:ext4:0x88D00000,0x20000000:cache.img;
-flash=mmc,0:recovery:ext4:0xA8E00000,0x4000000:recovery.img;
+flash=mmc,0:recovery:emmc:0xA8E00000,0x4000000:recovery.img;
 flash=mmc,0:misc:emmc:0xACF00000,0x100000:misc.img;
 flash=mmc,0:userdata:ext4:0xAD100000,0:userdata.img;
