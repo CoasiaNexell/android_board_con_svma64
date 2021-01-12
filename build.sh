@@ -154,14 +154,13 @@ if [ -f ${UBOOT_DIR}/u-boot.bin ]; then
             ${KERNEL_IMG} \
             "boot:emmc")
 	else
-    	UBOOT_BOOTCMD=$(make_uboot_bootcmd_dtimg \
-        	${PARTMAP_FILE} \
-	        0x4007f800 \
-    	    2048 \
-        	${KERNEL_IMG} \
-			0x49000000 \
-	        ${OUT_DIR}/ramdisk.img \
-    	    "boot:emmc")
+		UBOOT_BOOTCMD=$(make_uboot_bootcmd_dtimg \
+			${PARTMAP_FILE} \
+			"boot:emmc" \
+			0x4007f800 \
+			0x48000000 \
+			"dtb:emmc" \
+			0x49000000 )
 	fi
 
 	UBOOT_RECOVERYCMD=$(make_uboot_bootcmd_recovery \

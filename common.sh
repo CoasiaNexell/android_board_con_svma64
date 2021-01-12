@@ -748,6 +748,20 @@ function post_process()
 
     fi
 
+    if [ "${BUILD_DIST}" == "true" ]; then
+        local board_name=$(basename ${android_out})
+        cp ${TOP}/out/dist/aosp_${board_name}-target_files-eng.$(whoami).zip ${result_dir}/target_files.zip
+        if [ "${OTA_INCREMENTAL}" == "true" ]; then
+            test -z ${OTA_PREVIOUS_FILE} && echo "No valid previous target.zip(${OTA_PREVIOUS_FILE})" || \
+                ${TOP}/build/tools/releasetools/ota_from_target_files \
+                    -i ${OTA_PREVIOUS_FILE} ${result_dir}/target_files.zip \
+                    ${result_dir}/ota_update.zip
+        else
+            ${TOP}/build/tools/releasetools/ota_from_target_files \
+                ${result_dir}/target_files.zip ${result_dir}/ota_update.zip
+        fi
+    fi
+
     generate_update_script ${result_dir}
     generate_usb_boot ${result_dir}
 
@@ -1027,39 +1041,31 @@ function make_uboot_bootcmd_svm()
     echo -n ${bootcmd}
 }
 ##
-# args
-# $1: partmap file path
-# $2: load address(hex) of u-boot boot.img
-# $3: PAGE_SIZE
-# $4: kernel image path
-# $5: dtb load address
-# $6: ramdisk image path
-# $7: part name(ex> boot:emmc, recovery:emmc)
+
 function make_uboot_bootcmd_dtimg()
 {
     local partmap=$1
-    local load_addr=$2
-    local page_size=$3
-    local kernel=$4
-    local dtb=$5
-    local ramdisk=$6
-    local partname=$7
+    local boot_partname=$2
+    local kernel_load_addr=$3
+	local ramdisk_load_addr=$4
+    local dtb_partname=$5
+    local dtb_load_addr=$6
 
-    local boot_header_size=${page_size}
-    local partition_start_offset=$(get_partition_offset ${partmap} ${partname})
-    local partition_start_block_num_hex=$(get_blocknum_hex ${partition_start_offset} 512)
-    local kernel_size=$(get_fsize ${kernel} ${page_size})
-    local ramdisk_size=$(get_fsize ${ramdisk} ${page_size})
-    local total_size=$((${boot_header_size} + ${kernel_size} + ${ramdisk_size}))
-    local total_size_block_num_hex=$(get_blocknum_hex ${total_size} 512)
-    local ramdisk_start_address_hex=$(printf "%x" $((${load_addr} + ${boot_header_size} + ${kernel_size})))
-    local dtb_start_address=$(get_partition_offset ${partmap} "dtb:emmc")
+    local boot_start_offset=$(get_partition_offset ${partmap} ${boot_partname})
+    local boot_start_block_num_hex=$(get_blocknum_hex ${boot_start_offset} 512)
+
+    local dtb_start_address=$(get_partition_offset ${partmap} ${dtb_partname})
     local dtb_start_address_hex=$(get_blocknum_hex ${dtb_start_address} 512)
 
-    local bootcmd="mmc read ${load_addr} ${partition_start_block_num_hex} ${total_size_block_num_hex};dtimg load_mmc ${dtb_start_address_hex} ${dtb} \$\{board_rev\}; if test !-z $\{change_devicetree\}; then run change_devicetree; fi;bootm ${load_addr} ${ramdisk_start_address_hex} ${dtb}"
+    local bootcmd+="aboot load_mmc ${boot_start_block_num_hex} ${kernel_load_addr} ${ramdisk_load_addr}; "
+	bootcmd+="dtimg load_mmc ${dtb_start_address_hex} ${dtb_load_addr} \$\{board_rev\}; "
+	bootcmd+="if test !-z $\{change_devicetree\};"
+	bootcmd+="then run change_devicetree; fi; "
+	bootcmd+="booti ${kernel_load_addr} ${ramdisk_load_addr}:\$\{ramdisk_size\} ${dtb_load_addr} "
 
     echo -n ${bootcmd}
 }
+
 
 function make_uboot_bootcmd_recovery()
 {
